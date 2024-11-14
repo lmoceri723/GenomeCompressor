@@ -26,6 +26,36 @@ public class GenomeCompressor {
      */
     public static void compress() {
 
+        String input = BinaryStdIn.readString();
+
+        int length = input.length();
+        int count = 0;
+        byte buffer = 0;
+
+        while (count < length) {
+            char c = input.charAt(count);
+            switch (c) {
+                case 'A': buffer = (byte) ((buffer << 2)); break;
+                case 'C': buffer = (byte) ((buffer << 2) | 1); break;
+                case 'G': buffer = (byte) ((buffer << 2) | 2); break;
+                case 'T': buffer = (byte) ((buffer << 2) | 3); break;
+            }
+            count++;
+
+            if (count % 4 == 0) {
+                BinaryStdOut.write(buffer);
+                buffer = 0;
+            }
+        }
+
+        if (count % 4 != 0) {
+            int filled = count % 4;
+            int empty_bits = 2 * (4 - filled);
+            buffer <<= empty_bits;
+            BinaryStdOut.write(buffer);
+        }
+
+
         BinaryStdOut.close();
     }
 
