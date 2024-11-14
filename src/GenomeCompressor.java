@@ -17,6 +17,7 @@
  *  @author Kevin Wayne
  *  @author Zach Blick
  */
+
 public class GenomeCompressor {
 
     /**
@@ -24,8 +25,6 @@ public class GenomeCompressor {
      * { A, C, T, G } from standard input; compresses and writes the results to standard output.
      */
     public static void compress() {
-
-        // TODO: complete the compress() method
 
         BinaryStdOut.close();
     }
@@ -35,7 +34,27 @@ public class GenomeCompressor {
      */
     public static void expand() {
 
-        // TODO: complete the expand() method
+        String input = BinaryStdIn.readString();
+
+        int length = input.length();
+        int count = 0;
+        char mask = 0b11111100;
+
+        while (count < length) {
+            char c = input.charAt(count);
+
+            for (int i = 0; i < 4; i++) {
+                int code = c & mask;
+                switch (code) {
+                    case 0: BinaryStdOut.write('A'); break;
+                    case 1: BinaryStdOut.write('C'); break;
+                    case 2: BinaryStdOut.write('G'); break;
+                    case 3: BinaryStdOut.write('T'); break;
+                }
+                c <<= 2;
+            }
+            count++;
+        }
 
         BinaryStdOut.close();
     }
