@@ -16,13 +16,16 @@
  *  @author Robert Sedgewick
  *  @author Kevin Wayne
  *  @author Zach Blick
+ *  @author Landon Moceri
  */
 
 public class GenomeCompressor {
 
+    // Maps to convert codes to letters and vice versa
     static int[] codeLookup = new int[256];
     static char[] letterLookup = new char[4];
 
+    // Fill in the maps
     static {
         codeLookup['A'] = 0b00;
         codeLookup['C'] = 0b01;
@@ -35,34 +38,42 @@ public class GenomeCompressor {
         letterLookup[0b11] = 'T';
     }
 
+    /**
+     * Reads a sequence of 8-bit extended ASCII characters over the alphabet
+     * { A, C, T, G } from standard input; compresses and writes the results to standard output.
+     */
     public static void compress() {
+        // Read the entire string
         String input = BinaryStdIn.readString();
-        input = input.replace("\r", "");
-        input = input.replace("\n", "");
 
+        // Write the length to the head of the bin file
         int length = input.length();
         BinaryStdOut.write(length, 32);
 
+        // Convert each letter to a 2 bit code and write it to the binary
         for (int i = 0; i < length; i++) {
             char c = input.charAt(i);
-            if (c != 'A' && c != 'C' && c != 'G' && c != 'T') {
-                throw new IllegalArgumentException("Illegal character: " + (int) c);
-            }
-
             BinaryStdOut.write(codeLookup[c], 2);
         }
 
+        // Close the binary
         BinaryStdOut.close();
     }
 
+    /**
+     * Reads a binary sequence from standard input; expands and writes the results to standard output.
+     */
     public static void expand() {
+        // Get the actual length of the sequence from the head
         int length = BinaryStdIn.readInt();
 
+        // For each real base, convert it to its letter and write it to the txt file
         for (int i = 0; i < length; i++) {
-            int c = BinaryStdIn.readInt(2);
-            BinaryStdOut.write(letterLookup[c]);
+            int n = BinaryStdIn.readInt(2);
+            BinaryStdOut.write(letterLookup[n]);
         }
 
+        // Close the binary
         BinaryStdOut.close();
     }
 
