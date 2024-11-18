@@ -20,75 +20,51 @@
 
 public class GenomeCompressor {
 
-    /**
-     * Reads a sequence of 8-bit extended ASCII characters over the alphabet
-     * { A, C, T, G } from standard input; compresses and writes the results to standard output.
-     */
+    static int[] codeLookup = new int[256];
+    static char[] letterLookup = new char[4];
+
+    static {
+        codeLookup['A'] = 0b00;
+        codeLookup['C'] = 0b01;
+        codeLookup['G'] = 0b10;
+        codeLookup['T'] = 0b11;
+
+        letterLookup[0b00] = 'A';
+        letterLookup[0b01] = 'C';
+        letterLookup[0b10] = 'G';
+        letterLookup[0b11] = 'T';
+    }
+
     public static void compress() {
-
         String input = BinaryStdIn.readString();
+        input = input.replace("\r", "");
+        input = input.replace("\n", "");
 
         int length = input.length();
-        int count = 0;
-        byte buffer = 0;
+        BinaryStdOut.write(length, 32);
 
-        while (count < length) {
-            char c = input.charAt(count);
-            switch (c) {
-                case 'A': buffer = (byte) ((buffer << 2)); break;
-                case 'C': buffer = (byte) ((buffer << 2) | 1); break;
-                case 'G': buffer = (byte) ((buffer << 2) | 2); break;
-                case 'T': buffer = (byte) ((buffer << 2) | 3); break;
+        for (int i = 0; i < length; i++) {
+            char c = input.charAt(i);
+            if (c != 'A' && c != 'C' && c != 'G' && c != 'T') {
+                throw new IllegalArgumentException("Illegal character: " + (int) c);
             }
-            count++;
 
-            if (count % 4 == 0) {
-                BinaryStdOut.write(buffer);
-                buffer = 0;
-            }
+            BinaryStdOut.write(codeLookup[c], 2);
         }
-
-        if (count % 4 != 0) {
-            int filled = count % 4;
-            int empty_bits = 2 * (4 - filled);
-            buffer <<= empty_bits;
-            BinaryStdOut.write(buffer);
-        }
-
 
         BinaryStdOut.close();
     }
 
-    /**
-     * Reads a binary sequence from standard input; expands and writes the results to standard output.
-     */
     public static void expand() {
+        int length = BinaryStdIn.readInt();
 
-        String input = BinaryStdIn.readString();
-
-        int length = input.length();
-        int count = 0;
-        char mask = 0b11111100;
-
-        while (count < length) {
-            char c = input.charAt(count);
-
-            for (int i = 0; i < 4; i++) {
-                int code = c & mask;
-                switch (code) {
-                    case 0: BinaryStdOut.write('A'); break;
-                    case 1: BinaryStdOut.write('C'); break;
-                    case 2: BinaryStdOut.write('G'); break;
-                    case 3: BinaryStdOut.write('T'); break;
-                }
-                c <<= 2;
-            }
-            count++;
+        for (int i = 0; i < length; i++) {
+            int c = BinaryStdIn.readInt(2);
+            BinaryStdOut.write(letterLookup[c]);
         }
 
         BinaryStdOut.close();
     }
-
 
     /**
      * Main, when invoked at the command line, calls {@code compress()} if the command-line
